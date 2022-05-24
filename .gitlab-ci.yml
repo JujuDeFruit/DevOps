@@ -1,0 +1,44 @@
+image: "code.telecomste.fr:5050/printerfaceadmin/group5:latest"
+
+stages:
+  - compilation
+  - tests
+  - deploy
+
+linter:
+  stage: compilation
+  script:
+    - pylint_runner
+
+static_analysis:
+  stage: compilation
+  script: 
+    - prospector
+
+compile:
+  stage: compilation
+  script:
+    - python3 -m compileall .
+
+test_coverage:
+  stage: tests
+  script :
+    - coverage run --source=. -m unittest2 tests/init_tests.py
+  after_script:
+    - coverage report
+
+deploy:
+  image: docker
+  stage: deploy
+  only:
+    - dev
+  services:
+    - docker:dind
+  variables:
+    # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - docker build -t code.telecomste.fr:5050/printerfaceadmin/group5/container_registry/latest .
+    - docker push code.telecomste.fr:5050/printerfaceadmin/group5/container_registry/latest
