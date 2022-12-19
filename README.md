@@ -12,6 +12,7 @@ Pour ce faire vous pouvez utiliser la commande suivante :
 
 ### Installation :wrench: :
 
+test 
 Pour que l'application fonctionne correctement, vous devez avoir installé les modules python suivants :
 - paramiko
 - iputils-ping
